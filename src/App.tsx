@@ -27,6 +27,7 @@ function App() {
   const socketConnectionRef = useRef(null) as React.MutableRefObject<any>;
   const audioStreamRef = useRef(null) as React.MutableRefObject<HTMLAudioElement|null>
   const userIdRef = useRef(null) as React.MutableRefObject<string|null>;
+  const toConnectRef = useRef(null) as React.MutableRefObject<string|null>
   useEffect(() => {
     initializeSocketConnection();
     initializePeerConnection();
@@ -80,24 +81,26 @@ function App() {
 
     setGlobalState({ myConnection: connection });
 
-    connection.onicecandidate = function ({ candidate }) {
+    connection.addEventListener("icecandidate", function (candidate) {
+      
       if (candidate) {
-        socketConnection?.send(
+        console.log(candidate)
+        socketConnectionRef.current?.send(
           JSON.stringify({
             type: "candidate",
             data: {
               candidate,
-              to: toConnect,
+              to: toConnectRef.current,
             },
           })
         );
       }
-    };
+    })
     return connection;
   };
 
   const initializeSocketConnection = () => {
-    const conn = new WebSocket("wss://bd75-72-89-123-184.ngrok.io");
+    const conn = new WebSocket("wss://b59f-72-89-123-184.ngrok.io");
 
     conn.onmessage = (event) => {
       const message: Message = JSON.parse(event.data);
@@ -120,6 +123,7 @@ function App() {
   };
 
   const handleCandidateReceived = ({ candidate }: Candidate) => {
+    console.log(candidate);
     myConnectionRef?.current.addIceCandidate(candidate);
   };
 
@@ -200,7 +204,7 @@ function App() {
       {userList.map(id => {
         return (
         <div key={id}>
-            <button onClick={() => connectToPlayer(id)} style={{width: "200px", height: "50px", margin: "10px 0"}}>Call</button>
+            <button onClick={() => {toConnectRef.current = id; connectToPlayer(id)}} style={{width: "200px", height: "50px", margin: "10px 0"}}>Call</button>
         </div>
         )
       })}
