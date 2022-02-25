@@ -97,7 +97,7 @@ function App() {
   };
 
   const initializeSocketConnection = () => {
-    const conn = new WebSocket("http://bd75-72-89-123-184.ngrok.io");
+    const conn = new WebSocket("ws://bd75-72-89-123-184.ngrok.io");
 
     conn.onmessage = (event) => {
       const message: Message = JSON.parse(event.data);
